@@ -10,11 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class NewsAdapter extends ArrayAdapter<News> {
+class NewsAdapter extends ArrayAdapter<News> {
 
     private static final String LOG_TAG = NewsAdapter.class.getSimpleName();
 
-    public NewsAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull News[] newsArray) {
+    NewsAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull News[] newsArray) {
         super(context, 0, newsArray);
     }
 
