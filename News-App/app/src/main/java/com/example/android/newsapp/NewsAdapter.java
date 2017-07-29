@@ -1,9 +1,9 @@
 package com.example.android.newsapp;
 
 import android.content.Context;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +14,7 @@ class NewsAdapter extends ArrayAdapter<News> {
 
     private static final String LOG_TAG = NewsAdapter.class.getSimpleName();
 
-    NewsAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull News[] newsArray) {
+    NewsAdapter(@NonNull Context context, @NonNull News[] newsArray) {
         super(context, 0, newsArray);
     }
 
@@ -35,6 +35,7 @@ class NewsAdapter extends ArrayAdapter<News> {
         }
 
         News news = getItem(position);
+        Log.d(LOG_TAG, " getting item");
 
 
         // Populate the data into the view using the data object

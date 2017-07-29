@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String GUARDIAN_API_KEY = "c6762bae-2db4-4235-8650-1f9c37aff2a7";
-    private static final String GUARDIAN_API_SEARCH_REQUEST_URL = "https://content.guardianapis.com/search?";
+    private static final String GUARDIAN_API_SEARCH_REQUEST_URL = "https://content.guardianapis.com/search?q=";
     private static final String mSearchTerm = "soccer";
     private static final int EXISTING_PRODUCT_LOADER = 1;
 
@@ -36,6 +36,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private NewsAdapter mNewsAdapter;
     News[] mNewsList;
+
+    public static final String NEWS_LIST_ARRAY = "NEWS_LIST_ARRAY";
+    static final Integer READ_TIMEOUT_VALUE = 10000; /* milliseconds */
+    static final Integer CONNECT_TIMEOUT_VALUE = 15000; /* milliseconds */
+    static final Integer NEWS_LIST_SIZE = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +62,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return new AsyncTaskLoader<News[]>(MainActivity.this) {
             @Override public News[] loadInBackground() {
 
-                News[] newsArray = new News[1];
+               /* News[] newsArray = new News[1];
                 newsArray[0] = new News("title4", "url4");
-                return newsArray;
+                return newsArray;*/
+
+                News[] newsArray = new News[NEWS_LIST_SIZE];
 
                 // Create URL object
                 // URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&key=" + GUARDIAN_API_KEY);
-               /* URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + "api-key=" + GUARDIAN_API_KEY);
+                URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&api-key=" + GUARDIAN_API_KEY);
                 assert url != null;
                 Log.i(LOG_TAG, " Url created" + url.getPath());
 
@@ -75,8 +82,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Log.e(LOG_TAG, "Problem making the HTTP request.", e);
                 }
 
-
-
                 try {
                     newsArray = extractFeatureFromJson(jsonResponse);
                     Log.i(LOG_TAG, "extracted");
@@ -85,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
 
 
-                return newsArray;*/
+                return newsArray;
             }
 
 
@@ -121,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 try {
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setRequestMethod("GET");
-                    urlConnection.setReadTimeout(10);
-                    urlConnection.setConnectTimeout(20);
+                    urlConnection.setReadTimeout(READ_TIMEOUT_VALUE);
+                    urlConnection.setConnectTimeout(CONNECT_TIMEOUT_VALUE);
                     urlConnection.connect();
 
                     // If the request was successful (response code 200),
@@ -196,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         Log.i(LOG_TAG, Arrays.toString(newses) + " onLoadFinished ");
 
-        NewsAdapter mNewsAdapter = new NewsAdapter(this, 0, newses);
+        NewsAdapter mNewsAdapter = new NewsAdapter(this, newses);
 
         mListView.setAdapter(mNewsAdapter);
 
