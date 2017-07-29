@@ -9,7 +9,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,10 +36,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @InjectView(R.id.list) ListView mListView;
 
-    private NewsAdapter mNewsAdapter;
+ /*   private NewsAdapter mNewsAdapter;
     News[] mNewsList;
+    public static final String NEWS_LIST_ARRAY = "NEWS_LIST_ARRAY";*/
 
-    public static final String NEWS_LIST_ARRAY = "NEWS_LIST_ARRAY";
     static final Integer READ_TIMEOUT_VALUE = 10000; /* milliseconds */
     static final Integer CONNECT_TIMEOUT_VALUE = 15000; /* milliseconds */
     static final Integer NEWS_LIST_SIZE = 10;
@@ -51,25 +53,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Initialize a loader to read the product data from Guardian API
         // and display the current values in the editor
         getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
-
-
-        // mNewsList = new News[]{new News("title1", "url1"), new News("title2", "url2")};
-
-
     }
 
     @Override public Loader<News[]> onCreateLoader(int i, Bundle bundle) {
         return new AsyncTaskLoader<News[]>(MainActivity.this) {
             @Override public News[] loadInBackground() {
-
-               /* News[] newsArray = new News[1];
-                newsArray[0] = new News("title4", "url4");
-                return newsArray;*/
-
                 News[] newsArray = new News[NEWS_LIST_SIZE];
 
                 // Create URL object
-                // URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&key=" + GUARDIAN_API_KEY);
                 URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&api-key=" + GUARDIAN_API_KEY);
                 assert url != null;
                 Log.i(LOG_TAG, " Url created" + url.getPath());
@@ -89,15 +80,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     e.printStackTrace();
                 }
 
-
                 return newsArray;
             }
-
 
             /**
              * Returns new URL object from the given string URL.
              */
-
             private URL createUrl(String urlString) {
                 URL url;
                 try {
@@ -108,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
                 return url;
             }
-
 
             /**
              * Make an HTTP request to the given URL and return a String as the response.
@@ -140,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
                     }
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "Problem retrieving the earthquake JSON results.", e);
+                    Log.e(LOG_TAG, "Problem retrieving JSON results.", e);
                 } finally {
                     if (urlConnection != null) {
                         urlConnection.disconnect();
@@ -175,43 +162,42 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
              * Return an ArrayList of {@link News} objects by parsing out information
              * about the first earthquake from the input earthquakeJSON string.
              */
-            private News[] extractFeatureFromJson(String booksJSON) throws JSONException {
+            private News[] extractFeatureFromJson(String guardianNewsJSON) throws JSONException {
                 // If the JSON string is empty or null, then return early.
-                if (TextUtils.isEmpty(booksJSON)) {
+                if (TextUtils.isEmpty(guardianNewsJSON)) {
                     return null;
                 }
 
-                //   JSONObject baseJsonResponse = new JSONObject(booksJSON);
-                //   JSONArray itemsArray = baseJsonResponse.getJSONArray("items");
+                JSONObject baseJsonResponse = new JSONObject(guardianNewsJSON);
+                JSONObject responseJSON = baseJsonResponse.getJSONObject("response");
+                JSONArray itemsArray = responseJSON.getJSONArray("results");
 
+                News[] newses = new News[itemsArray.length()];
 
-                /*for (int x = 0; x < itemsArray.length(); x++) {
+                for (int x = 0; x < itemsArray.length(); x++) {
+                    JSONObject newsItem = itemsArray.getJSONObject(x);
 
-                }*/
-                return null;
+                    News newsLoopItem = new News();
+                    newsLoopItem.setTitle(newsItem.getString("webTitle"));
+                    newsLoopItem.setUrl(newsItem.getString("webUrl"));
+
+                    newses[x] = newsLoopItem;
+                }
+                return newses;
             }
 
         };
     }
 
-
     @Override public void onLoadFinished(Loader<News[]> loader, News[] newses) {
-
-        //mNewsAdapter.notifyDataSetChanged();
-
         Log.i(LOG_TAG, Arrays.toString(newses) + " onLoadFinished ");
 
         NewsAdapter mNewsAdapter = new NewsAdapter(this, newses);
-
         mListView.setAdapter(mNewsAdapter);
-
-        Log.i(LOG_TAG, " setAdapter ");
-
     }
 
     @Override public void onLoaderReset(Loader<News[]> loader) {
 
     }
-
 
 }

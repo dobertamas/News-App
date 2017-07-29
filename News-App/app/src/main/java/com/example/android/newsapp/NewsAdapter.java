@@ -37,7 +37,6 @@ class NewsAdapter extends ArrayAdapter<News> {
         News news = getItem(position);
         Log.d(LOG_TAG, " getting item");
 
-
         // Populate the data into the view using the data object
         assert news != null;
         viewHolder.titleTextView.setText(news.getTitle());
