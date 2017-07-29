@@ -9,9 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,13 +19,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<News[]> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String GUARDIAN_API_KEY = "c6762bae-2db4-4235-8650-1f9c37aff2a7";
@@ -37,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @InjectView(R.id.list) ListView mListView;
 
+    private NewsAdapter mNewsAdapter;
     News[] mNewsList;
 
     @Override
@@ -47,26 +45,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // Initialize a loader to read the product data from Guardian API
         // and display the current values in the editor
-        getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this);
+        getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
 
 
-        mNewsList = new News[]{new News("title1", "url1"), new News("title2", "url2")};
-
-        NewsAdapter newsAdapter = new NewsAdapter(this, 0, mNewsList);
-
-        mListView.setAdapter(newsAdapter);
-
-        Log.i(LOG_TAG, " setAdapter ");
+        // mNewsList = new News[]{new News("title1", "url1"), new News("title2", "url2")};
 
 
     }
 
-    @Override public Loader<List<News>> onCreateLoader(int i, Bundle bundle) {
-        return new AsyncTaskLoader<List<News>>(MainActivity.this) {
-            @Override public List<News> loadInBackground() {
+    @Override public Loader<News[]> onCreateLoader(int i, Bundle bundle) {
+        return new AsyncTaskLoader<News[]>(MainActivity.this) {
+            @Override public News[] loadInBackground() {
+
+                News[] newsArray = new News[1];
+                newsArray[0] = new News("title4", "url4");
+                return newsArray;
 
                 // Create URL object
-                URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&key=" + GUARDIAN_API_KEY);
+                // URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&key=" + GUARDIAN_API_KEY);
+               /* URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + "api-key=" + GUARDIAN_API_KEY);
                 assert url != null;
                 Log.i(LOG_TAG, " Url created" + url.getPath());
 
@@ -78,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Log.e(LOG_TAG, "Problem making the HTTP request.", e);
                 }
 
-                News[] newsArray = new News[12];
+
 
                 try {
                     newsArray = extractFeatureFromJson(jsonResponse);
@@ -87,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     e.printStackTrace();
                 }
 
-                List<News> myNews = new ArrayList<News>();
-                return myNews;
+
+                return newsArray;*/
             }
 
 
@@ -179,13 +176,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     return null;
                 }
 
-                JSONObject baseJsonResponse = new JSONObject(booksJSON);
-                JSONArray itemsArray = baseJsonResponse.getJSONArray("items");
+                //   JSONObject baseJsonResponse = new JSONObject(booksJSON);
+                //   JSONArray itemsArray = baseJsonResponse.getJSONArray("items");
 
 
-                for (int x = 0; x < itemsArray.length(); x++) {
+                /*for (int x = 0; x < itemsArray.length(); x++) {
 
-                }
+                }*/
                 return null;
             }
 
@@ -193,13 +190,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-    @Override public void onLoadFinished(Loader<List<News>> loader, List<News> newses) {
+    @Override public void onLoadFinished(Loader<News[]> loader, News[] newses) {
 
-        Log.i(LOG_TAG, newses.toString() + "newses");
+        //mNewsAdapter.notifyDataSetChanged();
+
+        Log.i(LOG_TAG, Arrays.toString(newses) + " onLoadFinished ");
+
+        NewsAdapter mNewsAdapter = new NewsAdapter(this, 0, newses);
+
+        mListView.setAdapter(mNewsAdapter);
+
+        Log.i(LOG_TAG, " setAdapter ");
 
     }
 
-    @Override public void onLoaderReset(Loader<List<News>> loader) {
+    @Override public void onLoaderReset(Loader<News[]> loader) {
 
     }
 
