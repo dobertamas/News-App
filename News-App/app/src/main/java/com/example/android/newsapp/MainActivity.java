@@ -29,12 +29,17 @@ import butterknife.InjectView;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<News[]> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
     private static final String GUARDIAN_API_KEY = "c6762bae-2db4-4235-8650-1f9c37aff2a7";
     private static final String GUARDIAN_API_SEARCH_REQUEST_URL = "https://content.guardianapis.com/search?q=";
-    private static final String mSearchTerm = "soccer";
+    private static final String mSearchTerm = "UNKNOWN TITLE";
     private static final int EXISTING_PRODUCT_LOADER = 1;
+    private static final String UNKNOWN_TITLE = "unknown title";
+
 
     @InjectView(R.id.list) ListView mListView;
+
+    private NewsAdapter mNewsAdapter;
 
  /*   private NewsAdapter mNewsAdapter;
     News[] mNewsList;
@@ -55,10 +60,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
     }
 
+    // Using anonymous inner class to provide AsyncTaskLoader functionality
     @Override public Loader<News[]> onCreateLoader(int i, Bundle bundle) {
         return new AsyncTaskLoader<News[]>(MainActivity.this) {
             @Override public News[] loadInBackground() {
                 News[] newsArray = new News[NEWS_LIST_SIZE];
+
 
                 // Create URL object
                 URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&api-key=" + GUARDIAN_API_KEY);
@@ -178,7 +185,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     JSONObject newsItem = itemsArray.getJSONObject(x);
 
                     News newsLoopItem = new News();
-                    newsLoopItem.setTitle(newsItem.getString("webTitle"));
+
+                    // error handling when webTitle is not available - setting UNKNOWN_TITLE
+                    try {
+                        String title = newsItem.getString("webTitle");
+                        if (!title.isEmpty()) {
+                            newsLoopItem.setTitle(newsItem.getString("webTitle"));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        newsLoopItem.setTitle(UNKNOWN_TITLE);
+                    }
+
                     newsLoopItem.setUrl(newsItem.getString("webUrl"));
 
                     newses[x] = newsLoopItem;
@@ -189,14 +207,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         };
     }
 
+    // Setting the adapter here as now we have the data
     @Override public void onLoadFinished(Loader<News[]> loader, News[] newses) {
-        Log.i(LOG_TAG, Arrays.toString(newses) + " onLoadFinished ");
+        Log.i(LOG_TAG, Arrays.toString(newses) + " at onLoadFinished ");
 
-        NewsAdapter mNewsAdapter = new NewsAdapter(this, newses);
+        mNewsAdapter = new NewsAdapter(this, newses);
         mListView.setAdapter(mNewsAdapter);
     }
 
     @Override public void onLoaderReset(Loader<News[]> loader) {
+        // Callback called when the data needs to be deleted
+        mListView.setAdapter(null);
+        Log.i(LOG_TAG, " onLoaderReset is swapping adapter to null ");
 
     }
 
