@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,9 +33,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final String GUARDIAN_API_KEY = "c6762bae-2db4-4235-8650-1f9c37aff2a7";
     private static final String GUARDIAN_API_SEARCH_REQUEST_URL = "https://content.guardianapis.com/search?q=";
-    private static final String mSearchTerm = "UNKNOWN TITLE";
+    private static final String mSearchTerm = "soccer";
     private static final int EXISTING_PRODUCT_LOADER = 1;
     private static final String UNKNOWN_TITLE = "unknown title";
+    private static final String UNKNOWN_URL = "unknown URL";
 
 
     @InjectView(R.id.list) ListView mListView;
@@ -197,7 +199,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         newsLoopItem.setTitle(UNKNOWN_TITLE);
                     }
 
-                    newsLoopItem.setUrl(newsItem.getString("webUrl"));
+                    // error handling when webUrl is not available - setting UNKNOWN_URL
+                    try {
+                        String  webUrl = newsItem.getString("webUrl");
+                        if (!webUrl.isEmpty()) {
+                            newsLoopItem.setUrl(newsItem.getString("webUrl"));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        newsLoopItem.setUrl(UNKNOWN_URL);
+                    }
 
                     newses[x] = newsLoopItem;
                 }
@@ -211,6 +222,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override public void onLoadFinished(Loader<News[]> loader, News[] newses) {
         Log.i(LOG_TAG, Arrays.toString(newses) + " at onLoadFinished ");
 
+        if (newses.length == 0) {
+            Toast.makeText(MainActivity.this, "Empty result set from news API", Toast.LENGTH_LONG).show();
+        }
         mNewsAdapter = new NewsAdapter(this, newses);
         mListView.setAdapter(mNewsAdapter);
     }
