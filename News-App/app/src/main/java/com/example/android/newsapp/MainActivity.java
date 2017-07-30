@@ -225,18 +225,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Toast.makeText(MainActivity.this, "Empty result set from news API", Toast.LENGTH_LONG).show();
         }
         mNewsAdapter = new NewsAdapter(this, newses);
+
+        mNewsAdapter.notifyDataSetChanged();
+
         mListView.setAdapter(mNewsAdapter);
+
+
 
         // when user clicks on an item we want to open the browser with that specific URL
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+
+                // creating News object based on position of the item
                 News news = mNewsAdapter.getItem(position);
                 assert news != null;
+                // setting the URL from the News object
                 browserIntent.setData(Uri.parse(news.getUrl()));
                 startActivity(browserIntent);
-
             }
         });
     }
