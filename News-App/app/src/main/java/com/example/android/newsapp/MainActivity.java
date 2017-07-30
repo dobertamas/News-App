@@ -2,8 +2,11 @@ package com.example.android.newsapp;
 
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int EXISTING_PRODUCT_LOADER = 1;
     private static final String UNKNOWN_TITLE = "unknown title";
     private static final String UNKNOWN_URL = "unknown URL";
+    private static final String UNKNOWN_SECTION = "unknown section";
 
     @InjectView(R.id.list) ListView mListView;
     NewsAdapter mNewsAdapter;
@@ -55,10 +59,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
+        if (isOnline()) {
+            // Initialize a loader to read the product data from Guardian API
+            // and display the current values in the editor
+            getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
+        }
+        else {
+            Toast.makeText(MainActivity.this, "No connectivity!", Toast.LENGTH_LONG).show();
+        }
+    }
 
-        // Initialize a loader to read the product data from Guardian API
-        // and display the current values in the editor
-        getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
+    public boolean isOnline() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
     }
 
     // Using anonymous inner class to provide AsyncTaskLoader functionality
@@ -209,6 +224,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         newsLoopItem.setUrl(UNKNOWN_URL);
                     }
 
+                    // error handling when section information is not available - setting UNKNOWN_SECTION
+                    try {
+                        String sectionName = newsItem.getString("sectionName");
+                        if (!sectionName.isEmpty()) {
+                            newsLoopItem.setSection(newsItem.getString("sectionName"));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        newsLoopItem.setSection(UNKNOWN_SECTION);
+                    }
+
                     newses[x] = newsLoopItem;
                 }
                 return newses;
@@ -229,7 +255,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mNewsAdapter.notifyDataSetChanged();
 
         mListView.setAdapter(mNewsAdapter);
-
 
 
         // when user clicks on an item we want to open the browser with that specific URL

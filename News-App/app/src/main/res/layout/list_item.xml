@@ -3,12 +3,44 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/list_item_title_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@color/colorLabel"/>
+
     <TextView
         android:id="@+id/list_item_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:textAppearanceSmall"
         android:textColor="@color/colorListItem"/>
+
+    <TextView
+        android:id="@+id/list_item_title_section_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/section"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@color/colorLabel"/>
+
+    <TextView
+        android:id="@+id/list_item_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@color/colorListItem"/>
+
+    <TextView
+        android:id="@+id/list_item_url_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/url"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@color/colorLabel"/>
 
     <TextView
         android:id="@+id/list_item_url"

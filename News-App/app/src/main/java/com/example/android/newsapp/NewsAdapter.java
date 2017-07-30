@@ -40,7 +40,9 @@ class NewsAdapter extends ArrayAdapter<News> {
         // Populate the data into the view using the data object
         assert news != null;
         viewHolder.titleTextView.setText(news.getTitle());
+        viewHolder.sectionTextView.setText(news.getSection());
         viewHolder.urlTextView.setText(news.getUrl());
+
 
         // Return the completed view to render on screen
         return convertView;
@@ -48,10 +50,12 @@ class NewsAdapter extends ArrayAdapter<News> {
 
     private class ViewHolder {
         TextView titleTextView;
+        TextView sectionTextView;
         TextView urlTextView;
 
         ViewHolder(View view) {
             this.titleTextView = view.findViewById(R.id.list_item_title);
+            this.sectionTextView = view.findViewById(R.id.list_item_section);
             this.urlTextView = view.findViewById(R.id.list_item_url);
         }
     }

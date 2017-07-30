@@ -4,6 +4,7 @@ class News {
 
     private String mTitle;
     private String mUrl;
+    private String mSection;
 
     public News() {
     }
@@ -29,4 +30,11 @@ class News {
         mUrl = url;
     }
 
+    public String getSection() {
+        return mSection;
+    }
+
+    public void setSection(String section) {
+        mSection = section;
+    }
 }
