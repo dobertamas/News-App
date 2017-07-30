@@ -2,11 +2,15 @@ package com.example.android.newsapp;
 
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,14 +42,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final String UNKNOWN_TITLE = "unknown title";
     private static final String UNKNOWN_URL = "unknown URL";
 
-
     @InjectView(R.id.list) ListView mListView;
-
-    private NewsAdapter mNewsAdapter;
-
- /*   private NewsAdapter mNewsAdapter;
-    News[] mNewsList;
-    public static final String NEWS_LIST_ARRAY = "NEWS_LIST_ARRAY";*/
+    NewsAdapter mNewsAdapter;
 
     static final Integer READ_TIMEOUT_VALUE = 10000; /* milliseconds */
     static final Integer CONNECT_TIMEOUT_VALUE = 15000; /* milliseconds */
@@ -56,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+
 
         // Initialize a loader to read the product data from Guardian API
         // and display the current values in the editor
@@ -201,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     // error handling when webUrl is not available - setting UNKNOWN_URL
                     try {
-                        String  webUrl = newsItem.getString("webUrl");
+                        String webUrl = newsItem.getString("webUrl");
                         if (!webUrl.isEmpty()) {
                             newsLoopItem.setUrl(newsItem.getString("webUrl"));
                         }
@@ -227,6 +226,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         mNewsAdapter = new NewsAdapter(this, newses);
         mListView.setAdapter(mNewsAdapter);
+
+        // when user clicks on an item we want to open the browser with that specific URL
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+                News news = mNewsAdapter.getItem(position);
+                assert news != null;
+                browserIntent.setData(Uri.parse(news.getUrl()));
+                startActivity(browserIntent);
+
+            }
+        });
     }
 
     @Override public void onLoaderReset(Loader<News[]> loader) {
