@@ -6,7 +6,7 @@ class News {
     private String mUrl;
     private String mSection;
 
-    public News() {
+    News() {
     }
 
     String getTitle() {
@@ -17,24 +17,25 @@ class News {
         return mUrl;
     }
 
-    public void setTitle(String title) {
+    void setTitle(String title) {
         mTitle = title;
     }
 
-    public void setUrl(String url) {
+    void setUrl(String url) {
         mUrl = url;
     }
 
-    News(String title, String url) {
+    News(String title, String url, String section) {
         mTitle = title;
         mUrl = url;
+        mSection = section;
     }
 
-    public String getSection() {
+    String getSection() {
         return mSection;
     }
 
-    public void setSection(String section) {
+    void setSection(String section) {
         mSection = section;
     }
 }

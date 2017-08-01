@@ -33,6 +33,7 @@ import java.util.Arrays;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<News[]> {
 
@@ -59,7 +60,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree() {
+                //Adding line number to the tag
+                @Override protected String createStackElementTag(StackTraceElement element) {
+                    return super.createStackElementTag(element) + ':' + element.getLineNumber();
+                }
+            });
+        }
+
+
         if (isOnline()) {
+            Timber.v("verbose Message here");
+            Timber.d("debug Message here");
             // Initialize a loader to read the product data from Guardian API
             // and display the current values in the editor
             getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
