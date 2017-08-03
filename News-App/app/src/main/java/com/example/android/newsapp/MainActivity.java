@@ -40,6 +40,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<News[]> {
 
@@ -65,6 +66,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree() {
+                //Adding line number to the tag
+                @Override protected String createStackElementTag(StackTraceElement element) {
+                    return super.createStackElementTag(element) + ':' + element.getLineNumber();
+                }
+            });
+        }
 
         if (isOnline()) {
             // Initialize a loader to read the product data from Guardian API
@@ -97,12 +107,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         call.enqueue(new Callback<Response_>() {
             @Override
             public void onResponse(Call<Response_> call, Response<Response_> response) {
-                Log.i(LOG_TAG, response.message().toString());
-                Log.i(LOG_TAG, " inside onResponse ");
+                Timber.i(String.valueOf(response.body().getResults().size()));
+                // Log.i(LOG_TAG, " inside onResponse " + response.body().getResults().get(0).getWebUrl());
+                Timber.i(" inside onResponse ");
             }
 
             @Override public void onFailure(Call<Response_> call, Throwable t) {
-                Log.i(LOG_TAG, " inside onFailure ");
+                Timber.i(" inside onFailure ");
             }
         });
 
