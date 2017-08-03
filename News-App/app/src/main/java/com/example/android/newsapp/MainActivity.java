@@ -85,20 +85,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Toast.makeText(MainActivity.this, "No connectivity!", Toast.LENGTH_LONG).show();
         }
 
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        //OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-
         String API_BASE_URL = "https://content.guardianapis.com/";
 
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        Retrofit.Builder builder = new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit =
-                builder.client(httpClient.build()).build();
+                .client(httpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                        .build();
 
         GuardianClient client = retrofit.create(GuardianClient.class);
 
@@ -108,7 +105,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onResponse(Call<Response_> call, Response<Response_> response) {
                 Timber.i(String.valueOf(response.body().getResults().size()));
-                // Log.i(LOG_TAG, " inside onResponse " + response.body().getResults().get(0).getWebUrl());
+
+                if (response.body().getResults().size() > 0) {
+                }
+
+                Log.i(LOG_TAG, " inside onResponse " + response.body().getResults().get(0).getWebUrl());
                 Timber.i(" inside onResponse ");
             }
 
@@ -136,37 +137,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&api-key=" + GUARDIAN_API_KEY);
                 assert url != null;
                 Log.i(LOG_TAG, " Url created" + url.getPath());
-
-                String API_BASE_URL = "https://content.guardianapis.com/";
-                OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
-                Retrofit.Builder builder = new Retrofit.Builder()
-                        .baseUrl(API_BASE_URL)
-                        .addConverterFactory(GsonConverterFactory.create());
-
-                Retrofit retrofit = builder.client(httpClient.build()).build();
-
-                GuardianClient client = retrofit.create(GuardianClient.class);
-
-               /* Call<List<News>> call = client.getNews(mSearchTerm, GUARDIAN_API_KEY);
-
-                call.enqueue(new Callback<List<News>>() {
-                    @Override
-                    public void onResponse(Call<List<News>> call, Response<List<News>> response) {
-                        Log.i(LOG_TAG, " inside onResponse ");
-                        try {
-                            extractFeatureFromJson("");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override public void onFailure(Call<List<News>> call, Throwable t) {
-                        Log.i(LOG_TAG, " inside onFailure ");
-
-                    }
-                });
-*/
 
                 // Perform HTTP request to the URL and receive a JSON response back
          /*       String jsonResponse = "";
