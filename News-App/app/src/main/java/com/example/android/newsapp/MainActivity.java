@@ -33,6 +33,13 @@ import java.util.Arrays;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<News[]> {
 
@@ -62,11 +69,43 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (isOnline()) {
             // Initialize a loader to read the product data from Guardian API
             // and display the current values in the editor
-            getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
+            //   getLoaderManager().initLoader(EXISTING_PRODUCT_LOADER, null, this).forceLoad();
         }
         else {
             Toast.makeText(MainActivity.this, "No connectivity!", Toast.LENGTH_LONG).show();
         }
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        //OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+        String API_BASE_URL = "https://content.guardianapis.com/";
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(API_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit =
+                builder.client(httpClient.build()).build();
+
+        GuardianClient client = retrofit.create(GuardianClient.class);
+
+        Call<Response_> call = client.getNews(mSearchTerm, GUARDIAN_API_KEY);
+
+        call.enqueue(new Callback<Response_>() {
+            @Override
+            public void onResponse(Call<Response_> call, Response<Response_> response) {
+                Log.i(LOG_TAG, response.message().toString());
+                Log.i(LOG_TAG, " inside onResponse ");
+            }
+
+            @Override public void onFailure(Call<Response_> call, Throwable t) {
+                Log.i(LOG_TAG, " inside onFailure ");
+            }
+        });
+
     }
 
     public boolean isOnline() {
@@ -82,14 +121,44 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override public News[] loadInBackground() {
                 News[] newsArray = new News[NEWS_LIST_SIZE];
 
-
                 // Create URL object
                 URL url = createUrl(GUARDIAN_API_SEARCH_REQUEST_URL + mSearchTerm + "&api-key=" + GUARDIAN_API_KEY);
                 assert url != null;
                 Log.i(LOG_TAG, " Url created" + url.getPath());
 
+                String API_BASE_URL = "https://content.guardianapis.com/";
+                OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+                Retrofit.Builder builder = new Retrofit.Builder()
+                        .baseUrl(API_BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create());
+
+                Retrofit retrofit = builder.client(httpClient.build()).build();
+
+                GuardianClient client = retrofit.create(GuardianClient.class);
+
+               /* Call<List<News>> call = client.getNews(mSearchTerm, GUARDIAN_API_KEY);
+
+                call.enqueue(new Callback<List<News>>() {
+                    @Override
+                    public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                        Log.i(LOG_TAG, " inside onResponse ");
+                        try {
+                            extractFeatureFromJson("");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override public void onFailure(Call<List<News>> call, Throwable t) {
+                        Log.i(LOG_TAG, " inside onFailure ");
+
+                    }
+                });
+*/
+
                 // Perform HTTP request to the URL and receive a JSON response back
-                String jsonResponse = "";
+         /*       String jsonResponse = "";
                 try {
                     jsonResponse = makeHttpRequest(url);
                 } catch (IOException e) {
@@ -104,6 +173,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
 
                 return newsArray;
+                */
+
+                return null;
             }
 
             /**
