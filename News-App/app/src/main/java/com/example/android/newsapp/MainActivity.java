@@ -87,15 +87,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         String API_BASE_URL = "https://content.guardianapis.com/";
 
+        // Retrofit 2.x relies directly on OkHttp3 library to make the actual network calls over HTTP.
+        // As a consequence, the logging has now moved from Retrofit to OkHttp, which means logging
+        // isn’t integrated by default anymore in Retrofit 2 so a logging interceptor need to be added.
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        // Level.HEADERS would only return headers; Level.BASIC would show only the main lines
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        // Add loggingInterceptor at the end, after your other Interceptors.
+        // This will also log the information which you added with previous interceptors to your request.
         OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
+        // Add the Okhttp client to Retrofit using the client() method.
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_BASE_URL)
                 .client(httpClient)
                 .addConverterFactory(GsonConverterFactory.create())
-                        .build();
+                .build();
 
         GuardianClient client = retrofit.create(GuardianClient.class);
 
@@ -104,12 +111,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         call.enqueue(new Callback<Response_>() {
             @Override
             public void onResponse(Call<Response_> call, Response<Response_> response) {
+                // Timber is an optional dependency. See planting a DebugTree above.
                 Timber.i(String.valueOf(response.body().getResults().size()));
 
                 if (response.body().getResults().size() > 0) {
+                    Log.d(LOG_TAG, " inside onResponse " + response.body().getResults().get(0).getWebUrl());
                 }
-
-                Log.i(LOG_TAG, " inside onResponse " + response.body().getResults().get(0).getWebUrl());
                 Timber.i(" inside onResponse ");
             }
 
